@@ -4,7 +4,7 @@
 
 const runner = require('./swagger-node-runner/index');
 
-export const swaggerRouter = {
+module.exports.swaggerRouter = {
     create: (config, requestHandler, securityHandler, documentationProcessor) => {
         return new Promise((resolve, reject) => {
             runner.create(config, (err, runnerInstance) => {
