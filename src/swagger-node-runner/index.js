@@ -163,21 +163,16 @@ function Runner(appJsConfig, cb) {
     if (!appJsConfig.configDir) { appJsConfig.configDir = 'config'; }
     process.env.NODE_CONFIG_DIR = path.resolve(appJsConfig.appRoot, appJsConfig.configDir);
   }
-  var Config = require('config');
+
+  this.config = {};
 
   var swaggerConfigDefaults = {
-    enforceUniqueOperationId: false,
-    startWithErrors: false,
-    startWithWarnings: true
+      enforceUniqueOperationId: false,
+      startWithErrors: false,
+      startWithWarnings: true
   };
 
-  this.config = Config.util.cloneDeep(Config);
-  this.config.swagger =
-    Config.util.extendDeep(
-      swaggerConfigDefaults,
-      this.config.swagger,
-      appJsConfig,
-      readEnvConfig());
+  this.config.swagger = _.merge(swaggerConfigDefaults, appJsConfig);
 
   debug('resolved config: %j', this.config);
 

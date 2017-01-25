@@ -10,7 +10,7 @@ module.exports.swaggerRouter = {
             runner.create(config, (err, runnerInstance) => {
             config.requestHandler = requestHandler;
 			config.securityHandler = securityHandler;
-			confif.documentationProcessor = documentationProcessor;
+            config.documentationProcessor = documentationProcessor;
                 if (err) { return reject(err); }
                 resolve(runnerInstance.restifyMiddleware());
             });

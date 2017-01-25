@@ -1,6 +1,6 @@
 {
   "name": "custom-swagger-router",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Custom implementation of swagger router",
   "main": "src/index.js",
   "repository": {

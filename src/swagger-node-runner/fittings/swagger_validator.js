@@ -62,7 +62,9 @@ module.exports = function create(fittingDef, bagpipes) {
 				documentation = controller._xDocumentation[operationId];
 			}
 
-            swaggerNodeRunner.config.swagger.documentationProcessor.processMethod(context.request.context, operationId, documentation);
+			if (swaggerNodeRunner.config.swagger.documentationProcessor) {
+            	swaggerNodeRunner.config.swagger.documentationProcessor.processMethod(context.request.context, operationId, documentation);
+            }
 
 			context.request.context.logRequest(requestOptions);
 		}
