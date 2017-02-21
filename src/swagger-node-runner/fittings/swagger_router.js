@@ -10,6 +10,9 @@ module.exports = function create(fittingDef, bagpipes) {
 
   debug('config: %j', fittingDef);
 
+  fittingDef.controllersDirs = fittingDef.controllersDirs || [];
+  fittingDef.mockControllersDirs = fittingDef.mockControllersDirs || [];
+
   assert(Array.isArray(fittingDef.controllersDirs), 'controllersDirs must be an array');
   assert(Array.isArray(fittingDef.mockControllersDirs), 'mockControllersDirs must be an array');
 
@@ -29,31 +32,42 @@ module.exports = function create(fittingDef, bagpipes) {
   return function swagger_router(context, cb) {
     debug('exec');
 
+
     var operation = context.request.swagger.operation;
-    var controllerName = operation[SWAGGER_ROUTER_CONTROLLER] || operation.pathObject[SWAGGER_ROUTER_CONTROLLER] || swaggerNodeRunner.config.swagger.defaultController;
 
     var controller;
 
-    if (controllerName in controllerFunctionsCache) {
+    try {
+      const controllerInstance = swaggerNodeRunner.config.swagger.controllers[SWAGGER_ROUTER_CONTROLLER] || swaggerNodeRunner.config.swagger.controllers['_default_controller_'];
+      controller = controllerInstance['operations'];
+    } catch(error) {
 
-      debug('controller in cache', controllerName);
-      controller = controllerFunctionsCache[controllerName];
+    }
 
-    } else {
+    if (!controller) {
+      var controllerName = operation[SWAGGER_ROUTER_CONTROLLER] || operation.pathObject[SWAGGER_ROUTER_CONTROLLER] || swaggerNodeRunner.config.swagger.defaultController;
 
-      debug('loading controller %s from fs: %s', controllerName, controllersDirs);
-      for (var i = 0; i < controllersDirs.length; i++) {
-        var controllerPath = path.resolve(controllersDirs[i], controllerName);
-        try {
-          controller = require(controllerPath);
-          controllerFunctionsCache[controllerName] = controller;
-          debug('controller found', controllerPath);
-          break;
-        } catch (err) {
-          if (!mockMode && i === controllersDirs.length - 1) {
-            return cb(err);
+      if (controllerName in controllerFunctionsCache) {
+
+        debug('controller in cache', controllerName);
+        controller = controllerFunctionsCache[controllerName];
+
+      } else {
+
+        debug('loading controller %s from fs: %s', controllerName, controllersDirs);
+        for (var i = 0; i < controllersDirs.length; i++) {
+          var controllerPath = path.resolve(controllersDirs[i], controllerName);
+          try {
+            controller = require(controllerPath);
+            controllerFunctionsCache[controllerName] = controller;
+            debug('controller found', controllerPath);
+            break;
+          } catch (err) {
+            if (!mockMode && i === controllersDirs.length - 1) {
+              return cb(err);
+            }
+            debug('controller not in', controllerPath);
           }
-          debug('controller not in', controllerPath);
         }
       }
     }

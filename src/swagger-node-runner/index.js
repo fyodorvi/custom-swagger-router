@@ -131,7 +131,7 @@ function Runner(appJsConfig, cb) {
 
     // no explicit pipe, but there's a controller
     if (!pipeName) {
-      if ((operation && operation[SWAGGER_ROUTER_CONTROLLER]) || path[SWAGGER_ROUTER_CONTROLLER] || appJsConfig.defaultController)
+      if ((operation && operation[SWAGGER_ROUTER_CONTROLLER]) || path[SWAGGER_ROUTER_CONTROLLER] || (appJsConfig.controllers && appJsConfig.controllers['_default_controller_']))
       {
         pipeName = config.swaggerControllerPipe;
       }

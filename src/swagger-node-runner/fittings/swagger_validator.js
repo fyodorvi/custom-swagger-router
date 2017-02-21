@@ -24,13 +24,24 @@ module.exports = function create(fittingDef, bagpipes) {
 
 		var operation = context.request.swagger.operation;
 		var operationId = operation.definition['operationId'] || context.request.method.toLowerCase();
-		var controllerName = operation[SWAGGER_ROUTER_CONTROLLER] || operation.pathObject[SWAGGER_ROUTER_CONTROLLER] || swaggerNodeRunner.config.swagger.defaultController;
 
-		var controllerPath = path.resolve('./controllers/', controllerName);
-		var controller = require(controllerPath);
+		let controller;
 
-		context.request.context.methodName = operationId;
-		context.request.context.className = controller['_className'] || controllerName;
+		try {
+            controller = swaggerNodeRunner.config.swagger.controllers[SWAGGER_ROUTER_CONTROLLER] || swaggerNodeRunner.config.swagger.controllers['_default_controller_'];
+            context.request.context.methodName = operationId;
+            context.request.context.className = controller.constructor.name;
+		} catch (error) {
+			console.log(error);
+		}
+
+		if (!controller) {
+			var controllerName = operation[SWAGGER_ROUTER_CONTROLLER] || operation.pathObject[SWAGGER_ROUTER_CONTROLLER] || swaggerNodeRunner.config.swagger.defaultController;
+			var controllerPath = path.resolve('./controllers/', controllerName);
+			controller = require(controllerPath);
+			context.request.context.methodName = operationId;
+			context.request.context.className = controller['_className'] || controllerName;
+        }
 
 		if (controller.metricsConfig) {
 			context.request.metricsConfig = controller.metricsConfig[operationId];
